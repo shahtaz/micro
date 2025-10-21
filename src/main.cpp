@@ -5,30 +5,37 @@
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 
-// --------------------- DFPlayer Setup ---------------------
+//df pklaeyr setup done
 static const uint8_t PIN_MP3_TX = 2; // Nano TX → DFPlayer RX
 static const uint8_t PIN_MP3_RX = 3; // Nano RX → DFPlayer TX
 SoftwareSerial mp3Serial(PIN_MP3_RX, PIN_MP3_TX);
 DFRobotDFPlayerMini player;
 
-// --------------------- ADXL345 Setup ----------------------
+//adx345 setup
 Adafruit_ADXL345_Unified accelerometer = Adafruit_ADXL345_Unified(12345);
 
-// --------------------- HC-SR04 Setup ----------------------
+//ultrasonic sensor
 const int trigPin = 8;
 const int echoPin = 7;
 
-// --------------------- Stop Button ----------------------
+//stop switch
 const int stopButtonPin = 4;   // D4 → GND
 
-// --------------------- Fall Detection Variables ----------------------
+// adxl345
 bool freefallDetected = false;
 bool impactDetected = false;
 unsigned long freefallTime = 0;
 unsigned long impactTime = 0;
 bool fallSoundPlayed = false;
 
-// --------------------- Sonar Variables ----------------------
+// fall detections stuff
+const float freefallThreshold = 5.0;
+const float impactThreshold = 20.0;
+const float stillnessThreshold = 12.0;
+
+
+
+// ultrasonic threshold
 float currentDistance = 0;
 float lastDetectedDistance = -1;
 unsigned long lastSonarReading = 0;
@@ -37,18 +44,13 @@ unsigned long objectCooldownStart = 0;
 const unsigned long objectCooldownDuration = 5000; // 5 seconds
 bool objectCooldownActive = false;
 
-// --------------------- Fall Detection Constants ----------------------
-const float freefallThreshold = 5.0;
-const float impactThreshold = 20.0;
-const float stillnessThreshold = 12.0;
-
-// --------------------- Sonar Constants ----------------------
+// ultrasonic_const
 const float minRange = 10.0;
 const float maxRange = 400.0;
 const float objectThreshold = 30.0;  // Distance limit for detection
 const unsigned long sonarInterval = 150;
 
-// --------------------- Function Declarations ----------------------
+// functionss
 float calculateMagnitude(sensors_event_t &event);
 void detectFall();
 void triggerFallAlert(sensors_event_t &event);
@@ -174,7 +176,7 @@ void detectFall() {
     }
 }
 
-// --------------------- Fall Sound Until Stop ----------------------
+
 void playFallSoundUntilButton() {
     bool stopTriggered = false;
     Serial.println("Playing fall sound repeatedly until button pressed...");
@@ -196,7 +198,6 @@ void playFallSoundUntilButton() {
     }
 }
 
-// --------------------- Fall Alert ----------------------
 void triggerFallAlert(sensors_event_t &event) {
     Serial.print("Fall detected - Coordinates: X=");
     Serial.print(event.acceleration.x, 2);
@@ -207,14 +208,14 @@ void triggerFallAlert(sensors_event_t &event) {
     Serial.println(" m/s²");
 }
 
-// --------------------- Reset ----------------------
+
 void resetFallDetection() {
     freefallDetected = false;
     impactDetected = false;
     fallSoundPlayed = false;
 }
 
-// --------------------- Display Status ----------------------
+
 void displayStatus() {
     static unsigned long lastDisplay = 0;
     if (millis() - lastDisplay > 500) {
@@ -235,7 +236,7 @@ void displayStatus() {
     }
 }
 
-// --------------------- DFPlayer Play ----------------------
+
 void playSound(int trackNumber) {
     if (player.available()) {
         player.playMp3Folder(trackNumber);
@@ -244,7 +245,7 @@ void playSound(int trackNumber) {
     }
 }
 
-// --------------------- Main Loop ----------------------
+
 void loop() {
     detectFall();
 
@@ -259,3 +260,4 @@ void loop() {
     displayStatus();
     delay(10);
 }
+
